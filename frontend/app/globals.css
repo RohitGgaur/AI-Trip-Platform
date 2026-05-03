@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf8f5;
+  --foreground: #141816;
+  --yatrify-surface: #f3f0ea;
+  --yatrify-elevated: #fffcf7;
+  --yatrify-accent: #8b5a2b;
+  --yatrify-accent-soft: #c17f3a;
+  --yatrify-ink: #1c1f1d;
+  --yatrify-muted: #5c5f5c;
+  --yatrify-line: rgba(28, 31, 29, 0.08);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-serif), ui-serif, Georgia, serif;
+}
+
+/* Landing (home) — theme + motion */
+:root {
+  --landing-primary: #ff6b4a;
+  --landing-secondary: #0b1628;
+}
+
+.landing_sans {
+  font-family: var(--font-landing-sans), "Open Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+.landing_serif {
+  font-family: var(--font-landing-serif), "Roboto Slab", ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+.landing_reveal_base {
+  opacity: 0;
+  transform: translateY(1.75rem);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.landing_reveal_visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing_reveal_base,
+  .landing_reveal_visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@keyframes landing_hero_line {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing_hero_line {
+  opacity: 0;
+  animation: landing_hero_line 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.landing_hero_delay_1 {
+  animation-delay: 0.1s;
+}
+.landing_hero_delay_2 {
+  animation-delay: 0.22s;
+}
+.landing_hero_delay_3 {
+  animation-delay: 0.34s;
+}
+.landing_hero_delay_4 {
+  animation-delay: 0.46s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing_hero_line {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0e0f0e;
+    --foreground: #eceae6;
+    --yatrify-surface: #121413;
+    --yatrify-elevated: #181a18;
+    --yatrify-accent: #d4a574;
+    --yatrify-accent-soft: #e8bc8c;
+    --yatrify-ink: #eceae6;
+    --yatrify-muted: #9a9894;
+    --yatrify-line: rgba(236, 234, 230, 0.09);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+}
+
+.font_display {
+  font-family: var(--font-display-serif), ui-serif, Georgia, serif;
+}

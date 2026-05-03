@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Environment & secrets (never commit real keys)
+.env
+.env.*
+!.env.example
+**/firebase-service-account.json
+*service-account*.json
+
+# Next.js (frontend)
+frontend/.next/
+frontend/out/
+
+# Build / cache
+*.tsbuildinfo
+.next/
+dist/
+build/
+
+# Logs & debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS & tooling
+.DS_Store
+Thumbs.db
+.cursor/
+
+# Vercel
+.vercel
