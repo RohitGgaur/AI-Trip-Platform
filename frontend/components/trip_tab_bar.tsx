@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactElement } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -10,7 +11,7 @@ type tab_def = {
   href: string;
   label: string;
   end: boolean;
-  icon: (props: { className?: string; active: boolean }) => JSX.Element;
+  icon: (props: { className?: string; active: boolean }) => ReactElement;
 };
 
 function IconOverview({ className, active }: { className?: string; active: boolean }) {

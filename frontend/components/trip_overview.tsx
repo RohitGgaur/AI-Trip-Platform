@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { fetch_trip, post_trip_invite, type trip_detail, type trip_member } from "@/lib/trips_api";
+import {
+  fetch_trip,
+  post_trip_invite,
+  type trip_detail,
+  type trip_member,
+} from "@/lib/trips_api";
 import { geocode_query_authed } from "@/lib/geocode_client";
 import { fetch_open_meteo_forecast, type open_meteo_bundle } from "@/lib/open_meteo_forecast";
 import {
@@ -118,8 +123,17 @@ export function TripOverview({ trip_id }: { trip_id: string }) {
       const user = auth.currentUser;
       if (!user) return;
       const id_token = await user.getIdToken();
-      await post_trip_invite(id_token, trip_id, email);
-      toast.success("Invite sent.");
+      const invite_result = await post_trip_invite(id_token, trip_id, email);
+      if (invite_result.email_sent) {
+        toast.success("Invite sent — check their inbox (and spam).");
+      } else {
+        toast.success("Invite saved.", { duration: 4500 });
+        toast(
+          invite_result.email_error ||
+            "Email could not be sent — add RESEND_API_KEY and APP_PUBLIC_ORIGIN (your site URL, e.g. http://localhost:3000) in Backend/.env, then restart the server.",
+          { icon: "✉️", duration: 9000 }
+        );
+      }
       set_invite_open(false);
       set_invite_email("");
     } catch (err) {

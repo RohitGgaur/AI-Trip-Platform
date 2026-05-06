@@ -1,5 +1,6 @@
 const tripsService = require("../Services/tripsService");
 const userService = require("../Services/userService");
+const invite_email_service = require("../Services/invite_email_service");
 const { createTripSchema, updateTripSchema, inviteSchema, joinSchema } = require("../Schemas/tripSchemas");
 const axios = require("axios");
 const { emitMemberJoined } = require("../sockets/emitters");
@@ -240,7 +241,37 @@ async function inviteMember(req, res, next) {
       invitedEmail: parsed.data.invitedEmail,
     });
 
-    return res.status(201).json({ success: true, data: invite });
+    const origin = invite_email_service.normalise_app_public_origin(
+      process.env.APP_PUBLIC_ORIGIN
+    );
+    const join_url = `${origin}/trips/join?trip_id=${encodeURIComponent(
+      req.params.tripId
+    )}&invite_id=${encodeURIComponent(invite.inviteId)}`;
+
+    let inviter_label = req.userName || req.email || "Someone";
+    try {
+      const inviter_user = await userService.getUserById(req.uid);
+      if (inviter_user?.displayName) inviter_label = inviter_user.displayName;
+      else if (inviter_user?.email) inviter_label = inviter_user.email;
+    } catch {
+      /* non-fatal */
+    }
+
+    const email_result = await invite_email_service.send_trip_invite_email({
+      to_email:       parsed.data.invitedEmail,
+      trip_title:     trip.title || "Trip",
+      join_url,
+      inviter_label,
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: {
+        ...invite,
+        email_sent: email_result.ok,
+        ...(email_result.ok ? {} : { email_error: email_result.error_message }),
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -261,11 +292,11 @@ async function joinTrip(req, res, next) {
 
     const trip = await tripsService.acceptInvite({
       inviteId:  parsed.data.inviteId,
-      uid:       req.uid,
-      userEmail: req.userEmail, // set by verifyFirebaseToken middleware
+      uid:        req.uid,
+      userEmail:  req.userEmail || req.email,
     });
 
-    emitMemberJoined(trip.tripId, req.uid, req.userName || req.userEmail);
+    emitMemberJoined(trip.tripId, req.uid, req.userName || req.email);
 
     return res.status(200).json({ success: true, data: trip });
   } catch (err) {

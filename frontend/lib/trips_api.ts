@@ -59,12 +59,20 @@ export async function fetch_trip(id_token: string, trip_id: string): Promise<tri
   return trip;
 }
 
+export type trip_invite_response = {
+  email_sent?: boolean;
+  email_error?: string;
+};
+
 export async function post_trip_invite(
   id_token: string,
   trip_id: string,
   invited_email: string
-): Promise<void> {
-  await axios.post(
+): Promise<trip_invite_response> {
+  const { data } = await axios.post<{
+    success?: boolean;
+    data?: trip_invite_response & { inviteId?: string };
+  }>(
     `${get_api_base()}/v1/trips/${encodeURIComponent(trip_id)}/invite`,
     { invitedEmail: invited_email.trim() },
     {
@@ -72,6 +80,29 @@ export async function post_trip_invite(
       timeout: 20_000,
     }
   );
+  const d = data?.data;
+  return {
+    email_sent: d?.email_sent,
+    email_error: typeof d?.email_error === "string" ? d.email_error : undefined,
+  };
+}
+
+export async function post_trip_join(
+  id_token: string,
+  trip_id: string,
+  invite_id: string
+): Promise<trip_detail> {
+  const { data } = await axios.post<{ success?: boolean; data?: trip_detail }>(
+    `${get_api_base()}/v1/trips/${encodeURIComponent(trip_id)}/join`,
+    { inviteId: invite_id },
+    {
+      headers: { Authorization: `Bearer ${id_token}` },
+      timeout: 20_000,
+    }
+  );
+  const trip = data?.data;
+  if (!trip || typeof trip.tripId !== "string") throw new Error("Join failed — invalid response.");
+  return trip;
 }
 
 export type budget_style_type = "backpacker" | "mid_range" | "luxury";

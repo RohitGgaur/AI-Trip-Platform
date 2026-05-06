@@ -85,7 +85,7 @@ export default function ProfilePage() {
       await axios.patch(
         `${api_base}/v1/auth/me`,
         {
-          homeCurrency,
+          homeCurrency: home_currency,
           budgetPreference: budget,
           interests,
         },

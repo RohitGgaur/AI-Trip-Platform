@@ -94,6 +94,12 @@ const verifyFirebaseToken = async (req, res, next) => {
     }
     req.uid = uid;
     req.email = decodedToken.email || null;
+    req.userEmail = req.email;
+    req.userName =
+      (typeof decodedToken.name === "string" && decodedToken.name) ||
+      (typeof decodedToken.display_name === "string" && decodedToken.display_name) ||
+      req.email ||
+      null;
 
     next();
   } catch (error) {

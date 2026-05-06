@@ -53,6 +53,28 @@ function read_firebase_error(err: unknown): string {
   return "Something went wrong. Try again.";
 }
 
+/** Internal path only — blocks open redirects (supports encoded ?next=). */
+function safe_post_login_path(raw: string | null): string | null {
+  if (!raw || typeof raw !== "string") return null;
+  let t = raw.trim();
+  try {
+    t = decodeURIComponent(t);
+  } catch {
+    return null;
+  }
+  t = t.trim();
+  if (!t.startsWith("/") || t.startsWith("//")) return null;
+  if (t.includes("://")) return null;
+  return t;
+}
+
+function post_auth_path_from_url(): string {
+  if (typeof window === "undefined") return "/trips";
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get("next") || params.get("redirect");
+  return safe_post_login_path(raw) || "/trips";
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const auth_user = use_auth_store((s) => s.user);
@@ -104,7 +126,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!auth_ready || !auth_user || needs_profile) return;
-    router.replace("/trips");
+    router.replace(post_auth_path_from_url());
   }, [auth_ready, auth_user, needs_profile, router]);
 
   const go_home_after_session = async () => {
@@ -118,7 +140,7 @@ export default function LoginPage() {
     try {
       await backend_fetch_me(id_token);
       toast.success("Welcome back.");
-      router.push("/trips");
+      router.push(post_auth_path_from_url());
       router.refresh();
     } catch (e) {
       if (axios.isAxiosError(e) && e.response?.status === 404) {
@@ -174,7 +196,7 @@ export default function LoginPage() {
       });
       await backend_fetch_me(id_token);
       toast.success("Account ready.");
-      router.push("/trips");
+      router.push(post_auth_path_from_url());
       router.refresh();
     } catch (err) {
       toast.error(read_firebase_error(err));
@@ -291,7 +313,7 @@ export default function LoginPage() {
       await backend_fetch_me(id_token);
       toast.success("Profile complete.");
       set_needs_profile(false);
-      router.push("/trips");
+      router.push(post_auth_path_from_url());
       router.refresh();
     } catch (err) {
       toast.error(read_firebase_error(err));

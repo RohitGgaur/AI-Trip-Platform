@@ -227,6 +227,21 @@ async function acceptInvite({ inviteId, uid, userEmail }) {
 
   const invite = inviteSnap.data();
 
+  if (invite.status === "accepted") {
+    const trip_snapshot = await getTripById(invite.tripId);
+    const member_uids = trip_snapshot?.memberUIDs || [];
+    const email_ok =
+      userEmail &&
+      invite.invitedEmail === String(userEmail).toLowerCase();
+    if (email_ok && member_uids.includes(uid)) {
+      return trip_snapshot;
+    }
+    throw Object.assign(
+      new Error(`Invite is already ${invite.status}.`),
+      { status: 400 }
+    );
+  }
+
   if (invite.status !== "pending") {
     throw Object.assign(
       new Error(`Invite is already ${invite.status}.`),
