@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/v1/:path*",
-        destination: `${backend_proxy_target}/v1/:path*`,
+        destination: "http://52.23.215.221:5000/v1/:path*",
       },
     ];
   },
