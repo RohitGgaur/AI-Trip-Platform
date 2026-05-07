@@ -32,6 +32,11 @@ export function get_api_base(): string {
   }
 
   if (configured) {
+    // Avoid mixed-content: if the page is HTTPS, don't call an HTTP API origin directly.
+    // Use same-origin `/v1/*` which is proxied by Next.js rewrites.
+    if (window.location.protocol === "https:" && configured.startsWith("http://")) {
+      return "";
+    }
     return configured;
   }
 
