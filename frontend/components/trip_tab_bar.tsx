@@ -95,6 +95,25 @@ function IconMemories({ className, active }: { className?: string; active: boole
   );
 }
 
+function IconTransport({ className, active }: { className?: string; active: boolean }) {
+  const c = active ? coral : "currentColor";
+  return (
+    <svg className={className} width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M3 17l2-6h14l2 6"
+        stroke={c}
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <rect x="2" y="17" width="20" height="4" rx="2" stroke={c} strokeWidth="1.75" />
+      <circle cx="7" cy="21" r="1" fill={active ? coral : "#94a3b8"} />
+      <circle cx="17" cy="21" r="1" fill={active ? coral : "#94a3b8"} />
+      <path d="M9 11V8M12 11V7M15 11V8" stroke={c} strokeWidth="1.5" strokeLinecap="round" opacity={active ? 0.9 : 0.4} />
+    </svg>
+  );
+}
+
 const build_tabs = (trip_id: string): tab_def[] => [
   {
     href: `/trips/${trip_id}`,
@@ -125,6 +144,12 @@ const build_tabs = (trip_id: string): tab_def[] => [
     label: "Memories",
     end: false,
     icon: IconMemories,
+  },
+  {
+    href: `/trips/${trip_id}/transport`,
+    label: "Transport",
+    end: false,
+    icon: IconTransport,
   },
 ];
 
