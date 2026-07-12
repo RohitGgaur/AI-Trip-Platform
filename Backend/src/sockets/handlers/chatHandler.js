@@ -1,6 +1,6 @@
 const { db }        = require("../../config/firebase");
 const { Timestamp } = require("firebase-admin/firestore");
-const tripsService  = require("../../services/tripsService");
+const tripsService  = require("../../Services/tripsService");
 
 /**
  * Handles chat socket events for a connected socket.

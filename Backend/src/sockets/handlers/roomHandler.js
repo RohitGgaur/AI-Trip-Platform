@@ -1,4 +1,4 @@
-const tripsService = require("../../services/tripsService");
+const tripsService = require("../../Services/tripsService");
 
 /**
  * Handles room-level socket events for a connected socket.

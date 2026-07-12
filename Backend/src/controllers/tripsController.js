@@ -23,15 +23,26 @@ async function geocodeDestination(destination) {
   return null;
 }
 
-/** Fetch a cover photo from Unsplash for the destination */
-async function fetchCoverPhoto(destination) {
+/**
+ * Fetch a cover photo from Unsplash.
+ * placeExists=true  → search by destination name (relevant image)
+ * placeExists=false → search generic travel keywords (random scenic image)
+ */
+async function fetchCoverPhoto(destination, placeExists) {
+  const query = placeExists
+    ? `${destination} travel landscape`
+    : "travel destination scenic landscape";
   try {
     const { data } = await axios.get("https://api.unsplash.com/search/photos", {
-      params: { query: destination, per_page: 1, orientation: "landscape" },
+      params: { query, per_page: 10, orientation: "landscape" },
       headers: { Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` },
       timeout: 5000,
     });
-    return data?.results?.[0]?.urls?.regular || null;
+    const results = data?.results;
+    if (!results?.length) return null;
+    // pick a random result from top-10 so repeated calls vary
+    const pick = results[Math.floor(Math.random() * results.length)];
+    return pick?.urls?.regular || null;
   } catch {
     return null;
   }
@@ -74,11 +85,9 @@ async function createTrip(req, res, next) {
 
     const body = parsed.data;
 
-    // Parallel: geocode + cover photo (non-blocking if they fail)
-    const [destinationCoords, coverPhotoURL] = await Promise.all([
-      geocodeDestination(body.destination),
-      fetchCoverPhoto(body.destination),
-    ]);
+    // Geocode first — result determines whether we fetch a location-specific or generic photo
+    const destinationCoords = await geocodeDestination(body.destination);
+    const coverPhotoURL = await fetchCoverPhoto(body.destination, !!destinationCoords);
 
     const trip = await tripsService.createTrip({
       ...body,

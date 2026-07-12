@@ -8,6 +8,11 @@ require("dotenv").config({
 require('./config/firebase');
 const { initSocket } = require("./sockets");
 
+// Startup key check — visible in terminal so missing keys are caught immediately
+const _geminiKey = (process.env.GEMINI_API_KEY || "").trim();
+console.log(`[startup] GEMINI_API_KEY: ${_geminiKey ? `loaded (${_geminiKey.slice(0, 8)}...)` : "MISSING — check Backend/.env"}`);
+
+
 const express = require('express');
 const cors = require('cors');
 
@@ -57,6 +62,9 @@ app.use("/v1/ai", aiRouter);
 
 const festivalsRouter = require("./routes/festivals");
 app.use("/v1/festivals", festivalsRouter);
+
+const transportRouter = require("./routes/transport");
+app.use("/v1/transport", transportRouter);
 
 // Unknown API routes → JSON (not Express HTML default)
 app.use((req, res) => {

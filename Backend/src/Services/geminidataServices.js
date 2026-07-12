@@ -1,11 +1,21 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { differenceInDays, addDays, format } = require("date-fns");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const MODEL = (process.env.GEMINI_MODEL || "gemini-2.0-flash").trim();
+const DEFAULT_MODEL = "gemini-2.0-flash";
+
+function getGenAI() {
+  const key = (process.env.GEMINI_API_KEY || "").trim();
+  if (!key) {
+    const e = new Error("GEMINI_API_KEY missing");
+    e.code = "MISSING_GEMINI_KEY";
+    throw e;
+  }
+  return new GoogleGenerativeAI(key);
+}
 
 function getModel() {
-  return genAI.getGenerativeModel({ model: MODEL });
+  const model = (process.env.GEMINI_MODEL || DEFAULT_MODEL).trim();
+  return getGenAI().getGenerativeModel({ model });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -143,8 +153,8 @@ STRICT OUTPUT RULES:
  * Returns the assistant's reply text.
  */
 async function chatWithAssistant({ tripContext, message, history }) {
-  const model = genAI.getGenerativeModel({
-    model: MODEL,
+  const model = getGenAI().getGenerativeModel({
+    model: (process.env.GEMINI_MODEL || DEFAULT_MODEL).trim(),
     systemInstruction: `
 You are an expert AI travel assistant helping plan and manage a trip.
 Trip context:
