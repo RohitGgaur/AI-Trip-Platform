@@ -51,6 +51,6 @@ jobs:
               "docker pull 596871239412.dkr.ecr.us-east-1.amazonaws.com/ai-trip-platform:latest",
               "docker stop ai-trip-platform || true",
               "docker rm ai-trip-platform || true",
-              "docker run -d --restart always --name ai-trip-platform -p 80:5000 596871239412.dkr.ecr.us-east-1.amazonaws.com/ai-trip-platform:latest"
+              "docker run -d --restart always --name ai-trip-platform -p 80:5000 --env-file /home/ubuntu/ai-trip-platform/.env -v /home/ubuntu/ai-trip-platform/firebase-service-account.json:/app/firebase-service-account.json:ro 596871239412.dkr.ecr.us-east-1.amazonaws.com/ai-trip-platform:latest"
             ]' \
             --comment "Deploy AI Trip Platform"
